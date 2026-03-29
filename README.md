@@ -86,3 +86,5 @@ POST /api/reservas : Crea una nueva reserva (Requiere un userId válido).
 PUT /api/reservas/{id} : Actualiza el estado de una reserva.
 
 DELETE /api/reservas/{id} : Elimina una reserva.
+
+¿Te gustaría que te arme también un archivo collection.json con todos estos endpoints configurados para que tú (y Matías, si están trabajando juntos en esta parte) puedan importarlo directo a Postman con un solo clic?
