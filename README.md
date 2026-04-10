@@ -1,78 +1,96 @@
-# Library BFF Microservice
+# 📚 Library BFF Microservice
 
-Este proyecto es un microservicio Backend for Frontend (BFF) desarrollado con Java 17 y Spring Boot. Su principal objetivo es orquestar y exponer endpoints REST que se comunican con diferentes funciones serverless (Azure Functions) encargadas de la gestión de Usuarios y Préstamos de libros.
+Este proyecto es un microservicio **Backend for Frontend (BFF)** desarrollado con Java 17 y Spring Boot. Su principal objetivo es orquestar y exponer endpoints REST que se comunican con diferentes funciones serverless (Azure Functions) encargadas de la gestión de Usuarios y Reservas de libros.
 
-El proyecto está diseñado usando los principios de la **Arquitectura Hexagonal** (Puertos y Adaptadores) y hace uso de **Spring WebFlux (WebClient)** para realizar integraciones proactivas no bloqueantes con los servicios externos de Azure.
+El proyecto está diseñado bajo los principios de la **Arquitectura Hexagonal** (Puertos y Adaptadores) y hace uso de **Spring WebFlux (`WebClient`)** para realizar integraciones reactivas y no bloqueantes con los servicios externos de Azure.
 
-## Arquitectura
+---
 
-El proyecto sigue una estructura de capas siguiendo la convención hexagonal:
+## 🏗️ Arquitectura
 
-- **Domain (`com.bff.library.domain`)**: Contiene las entidades y modelos de negocio puros (`User`, `BookLoan`).
-- **Application Core (`com.bff.library.application`)**: 
-  - `port.in`: Casos de uso e interfaces de entrada que la aplicación expone hacia el exterior (ej. Controladores REST).
-  - `port.out`: Interfaces salientes que la aplicación requiere para comunicarse con el mundo externo (Azure).
-  - `service`: Implementación concreta de la lógica de negocio en función a los respectivos casos de uso.
-- **Infrastructure (`com.bff.library.infrastructure`)**:
-  - `in.web`: Controladores API REST (`UserController`, `BookLoanController`, `ExampleController`).
-  - `out.azure`: Adaptadores HTTP salientes que implementan los puertos `.out` comunicándose con Azure Functions vía `WebClient` de Reactor.
+El proyecto sigue una estructura de capas estricta para desacoplar el dominio del framework y las integraciones externas:
 
-## Requisitos Previos
+* **`domain`** (`com.bff.library.domain`): Contiene las entidades y modelos de negocio puros (`User`, `ReservaLibro`).
+* **`application`** (`com.bff.library.application`): 
+  * `port.in`: Casos de uso e interfaces de entrada que la aplicación expone hacia el exterior.
+  * `port.out`: Interfaces salientes que la aplicación requiere para comunicarse con el mundo externo.
+  * `service`: Implementación concreta de la lógica de negocio.
+* **`infrastructure`** (`com.bff.library.infrastructure`):
+  - `in.web`: Controladores API REST (`UserController`, `ReservaController`).
+  - `out.azure`: Adaptadores HTTP salientes que implementan los puertos `.out` comunicándose con Azure Functions vía `WebClient`.
 
-- Java 17 o superior.
-- Maven 3.8 o superior.
-- (Opcional) Contar con las correspondientes Azure Functions en funcionamiento localmente o desplegadas para interactuar con ellas (salvo el endpoint de Ejemplo que ya integra con la nube).
+---
 
-## Configuración (`application.properties`)
+## ⚙️ Requisitos Previos
 
-Antes de iniciar la aplicación, puedes verificar o ajustar las URLs base de las Azure Functions abriendo `src/main/resources/application.properties`:
+- **Java 17** o superior.
+- **Maven 3.8** o superior.
+- **Docker y Docker Compose** (Para despliegue en entornos virtualizados como AWS EC2).
+
+---
+
+## 🔧 Configuración (`application.properties`)
+
+Antes de iniciar la aplicación, verifica las URLs base de las Azure Functions en `src/main/resources/application.properties`:
 
 ```properties
 server.port=8080
 
-# URLs base de las funciones en Azure (por defecto apuntando a entorno local)
-azure.functions.users.url=http://localhost:7071/api/users
-azure.functions.bookloans.url=http://localhost:7071/api/loans
-
-# Función de ejemplo funcional en la nube
-azure.functions.example.url=https://cloudnative-duoavengers-gvexfnfvaybbedaz.brazilsouth-01.azurewebsites.net/api/HttpExample
+# Azure Functions base URLs
+azure.functions.users.url=[https://cloudnative-duoavengers-gvexfnfvaybbedaz.brazilsouth-01.azurewebsites.net/api/users](https://cloudnative-duoavengers-gvexfnfvaybbedaz.brazilsouth-01.azurewebsites.net/api/users)
+azure.functions.bookloans.url=[https://cloudnative-duoavengers-gvexfnfvaybbedaz.brazilsouth-01.azurewebsites.net/api/reservas](https://cloudnative-duoavengers-gvexfnfvaybbedaz.brazilsouth-01.azurewebsites.net/api/reservas)
 ```
 
-## Construcción y Ejecución
+🚀 Construcción y Ejecución
+Opción A: Ejecución Local con Maven
+Compilar el proyecto:
 
-1. **Compilar el proyecto (Validar sintaxis y dependencias):**
-   ```bash
-   mvn clean compile
-   ```
-2. **Construir el proyecto completo (.jar):**
-   ```bash
-   mvn clean package
-   ```
-3. **Ejecutar la aplicación usando Maven:**
-   ```bash
-   mvn spring-boot:run
-   ```
-   La aplicación se levantará en el puerto designado (por defecto `http://localhost:8080`).
+```Bash
+mvn clean compile
+```
+Construir el empaquetado completo (.jar):
 
-## Endpoints Expuestos por el BFF
+```Bash
+mvn clean package
+```
+Ejecutar la aplicación:
 
-### 1. Azure Function de Ejemplo (Verificación Rápida)
-Este endpoint consume y orquesta la Azure Function que se estipuló como de demostración. Es ideal para probar que el BFF y la orquestación HTTP funcionan correctamente sin configurar nada adicional en local.
-- **GET** `/api/example`
-- **GET** `/api/example?name=TuNombre`
+```Bash
+mvn spring-boot:run
+```
+La aplicación se levantará en http://localhost:8080.
 
-### 2. Usuarios
-Endpoints del BFF que a su vez orquestan y delegan las llamadas completas de CRUD hacia la Azure Function de usuarios.
-- **GET** `/api/users`
-- **GET** `/api/users/{id}`
-- **POST** `/api/users` (Enviando JSON formatedo de la entidad)
-- **PUT** `/api/users/{id}`
-- **DELETE** `/api/users/{id}`
+Opción B: Despliegue con Docker (Recomendado para EC2)
+Para levantar el servicio en un entorno contenerizado junto con su base de datos:
 
-### 3. Préstamos de Libros
-Endpoints del BFF para el manejo de préstamos de libros (Book Loans). Se comportan de manera idéntica al modelo de usuarios, orquestando CRUD hacia las funciones objetivo.
-- **GET** `/api/loans`
-- **GET** `/api/loans/{id}`
-- **POST** `/api/loans`
-- **PUT** `/api/loans/{id}`
-- **DELETE** `/api/loans/{id}`
+```Bash
+docker-compose up -d --build
+```
+Para revisar los logs de ejecución en tiempo real:
+
+```Bash
+docker logs -f library-bff-app
+```
+📡 Endpoints Expuestos por el BFF
+Todas las peticiones a estos endpoints son procesadas por el BFF, el cual orquesta la llamada hacia las funciones serverless de Azure y retorna la respuesta formateada al cliente.
+
+### 👥 1. Gestión de Usuarios (/api/users)
+
+| Método | Endpoint | Descripción | Body Requerido |
+| :--- | :--- | :--- | :--- |
+| **GET** | `/api/users` | Lista todos los usuarios. | No |
+| **GET** | `/api/users/{id}` | Obtiene un usuario por su ID. | No |
+| **POST** | `/api/users` | Crea un nuevo usuario. | Sí (JSON) |
+| **PUT** | `/api/users/{id}` | Actualiza un usuario existente. | Sí (JSON) |
+| **DELETE** | `/api/users/{id}` | Elimina un usuario por su ID. | No |
+
+### 📖 2. Gestión de Reservas de Libros (/api/reservas)
+
+| Método | Endpoint | Descripción | Body Requerido |
+| :--- | :--- | :--- | :--- |
+| **GET** | `/api/reservas` | Lista todas las reservas. | No |
+| **GET** | `/api/reservas/{id}`| Obtiene una reserva por su ID. | No |
+| **POST** | `/api/reservas` | Crea una nueva reserva. | Sí (Requiere `userId` válido) |
+| **PUT** | `/api/reservas/{id}`| Actualiza el estado de una reserva.| Sí (JSON) |
+| **DELETE** | `/api/reservas/{id}`| Elimina una reserva por su ID. | No |
+
