@@ -1,6 +1,6 @@
 package com.bff.library.infrastructure.out.azure;
 
-import com.bff.library.application.port.out.GraphQLReservaFunctionPort;
+import com.bff.library.application.port.out.GraphQLLibroFunctionPort;
 import com.bff.library.domain.model.GraphQLRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -8,12 +8,12 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
 @Component
-public class GraphQLReservaAzureAdapter implements GraphQLReservaFunctionPort {
+public class GraphQLLibroAzureAdapter implements GraphQLLibroFunctionPort {
 
     private final WebClient webClient;
     private final String baseUrl;
 
-    public GraphQLReservaAzureAdapter(WebClient webClient, @Value("${azure.functions.graphql.reservas.url}") String baseUrl) {
+    public GraphQLLibroAzureAdapter(WebClient webClient, @Value("${azure.functions.graphql.reservas.url}") String baseUrl) {
         this.webClient = webClient;
         this.baseUrl = baseUrl;
     }

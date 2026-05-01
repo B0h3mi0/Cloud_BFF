@@ -1,7 +1,7 @@
 package com.bff.library.infrastructure.out.azure;
 
-import com.bff.library.application.port.out.ReservaFunctionPort;
-import com.bff.library.domain.model.ReservaLibro;
+import com.bff.library.application.port.out.LibroFunctionPort;
+import com.bff.library.domain.model.Libro;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -10,57 +10,57 @@ import java.util.List;
 import java.util.Optional;
 
 @Component
-public class ReservaAzureAdapter implements ReservaFunctionPort {
+public class LibroAzureAdapter implements LibroFunctionPort {
 
     private final WebClient webClient;
     private final String baseUrl;
 
-    public ReservaAzureAdapter(WebClient webClient, @Value("${azure.functions.bookloans.url}") String baseUrl) {
+    public LibroAzureAdapter(WebClient webClient, @Value("${azure.functions.bookloans.url}") String baseUrl) {
         this.webClient = webClient;
         this.baseUrl = baseUrl;
     }
 
     @Override
-    public ReservaLibro createReserva(ReservaLibro reserva) {
+    public Libro createLibro(Libro libro) {
         return webClient.post()
                 .uri(baseUrl)
-                .bodyValue(reserva)
+                .bodyValue(libro)
                 .retrieve()
-                .bodyToMono(ReservaLibro.class)
+                .bodyToMono(Libro.class)
                 .block();
     }
 
     @Override
-    public Optional<ReservaLibro> getReservaById(String id) {
+    public Optional<Libro> getLibroById(String id) {
         return webClient.get()
                 .uri(baseUrl + "/{id}", id)
                 .retrieve()
-                .bodyToMono(ReservaLibro.class)
+                .bodyToMono(Libro.class)
                 .blockOptional();
     }
 
     @Override
-    public List<ReservaLibro> getAllReservas() {
+    public List<Libro> getAllLibros() {
         return webClient.get()
                 .uri(baseUrl)
                 .retrieve()
-                .bodyToFlux(ReservaLibro.class)
+                .bodyToFlux(Libro.class)
                 .collectList()
                 .block();
     }
 
     @Override
-    public ReservaLibro updateReserva(String id, ReservaLibro reserva) {
+    public Libro updateLibro(String id, Libro libro) {
         return webClient.put()
                 .uri(baseUrl + "/{id}", id)
-                .bodyValue(reserva)
+                .bodyValue(libro)
                 .retrieve()
-                .bodyToMono(ReservaLibro.class)
+                .bodyToMono(Libro.class)
                 .block();
     }
 
     @Override
-    public Void deleteReserva(String id) {
+    public Void deleteLibro(String id) {
         return webClient.delete()
                 .uri(baseUrl + "/{id}", id)
                 .retrieve()
