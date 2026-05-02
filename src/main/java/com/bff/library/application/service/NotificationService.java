@@ -22,7 +22,7 @@ public class NotificationService implements NotificationUseCase {
     private String productorUrl;
 
     // 1. DTO interno para asegurar que los datos sean consistentes
-    public record UserNotificationDto(Long id, String email) {
+    public record UserNotificationDto(String id, String email) {
     }
 
     public NotificationService(JdbcTemplate jdbcTemplate, WebClient.Builder webClientBuilder) {
@@ -50,7 +50,7 @@ public class NotificationService implements NotificationUseCase {
 
             // 4. Mapeo explícito a DTO para evitar sorpresas con tipos de datos
             List<UserNotificationDto> usuarios = jdbcTemplate.query(sql, (rs, rowNum) -> new UserNotificationDto(
-                    rs.getLong("id"),
+                    rs.getString("id"),
                     rs.getString("email")));
 
             if (usuarios.isEmpty()) {
